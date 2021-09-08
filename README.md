@@ -1,7 +1,7 @@
 # CS 3300 Project
 Fall 2021 - CS 3300 Project - Georgia Tech
 
-## Members:
+## Members
 * Aman Jain
 * Jackson Williams
 * Subbarao Garlapati

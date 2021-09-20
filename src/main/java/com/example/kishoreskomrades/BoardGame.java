@@ -1,6 +1,5 @@
 package com.example.kishoreskomrades;
 
-import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -64,29 +63,23 @@ public class BoardGame extends javafx.application.Application {
         plusOne = new Button("Plus One");
         plusOne.setMinHeight(50);
         plusOne.setMinWidth(100);
-        plusOne.setOnAction(e -> moveForwardOne(e));
+        plusOne.setOnAction(e -> moveForward(e, 1));
         plusThree = new Button("Plus Three");
         plusThree.setMinHeight(50);
         plusThree.setMinWidth(100);
-        plusThree.setOnAction(e -> moveForwardThree(e));
+        plusThree.setOnAction(e -> moveForward(e, 3));
         vBox.getChildren().add(plusOne);
         vBox.getChildren().add(plusThree);
         Scene scene = new Scene(vBox);
         stage.setScene(scene);
         stage.show();
         this.stage = stage;
-//        stage.setScene(new Scene(new WelcomeJavaFXPane()));
-//        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
-//        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-//        stage.setTitle("Hello!");
-//        stage.setScene(scene);
-//        stage.show();
     }
 
-    private void moveForwardOne(ActionEvent e) {
-        if (currentRow == 0) {
+    private void moveForward(ActionEvent e, int numForward) {
+        if (currentRow - numForward < 0) {
             Alert a = new Alert(Alert.AlertType.WARNING);
-            a.setContentText("Player cannot move forward 1 tile");
+            a.setContentText("Player cannot move forward " + numForward + " tile(s)");
             a.show();
             return;
         }
@@ -98,33 +91,7 @@ public class BoardGame extends javafx.application.Application {
         Text t = new Text("");
         sp.getChildren().addAll(rect, t);
         gp.add(sp, currentCol, currentRow);
-        currentRow--;
-        StackPane newSP = new StackPane();
-        Rectangle newRect = new Rectangle();
-        newRect.setWidth(100);
-        newRect.setHeight(100);
-        newRect.setStyle("-fx-fill: white; -fx-stroke: black; -fx-stroke-width: 3;");
-        Text newT = new Text("Player");
-        newSP.getChildren().addAll(newRect, newT);
-        gp.add(newSP, currentCol, currentRow);
-    }
-
-    private void moveForwardThree(ActionEvent e) {
-        if (currentRow <= 2) {
-            Alert a = new Alert(Alert.AlertType.WARNING);
-            a.setContentText("Player cannot move forward 3 tiles");
-            a.show();
-            return;
-        }
-        StackPane sp = new StackPane();
-        Rectangle rect = new Rectangle();
-        rect.setWidth(100);
-        rect.setHeight(100);
-        rect.setStyle("-fx-fill: white; -fx-stroke: black; -fx-stroke-width: 3;");
-        Text t = new Text("");
-        sp.getChildren().addAll(rect, t);
-        gp.add(sp, currentCol, currentRow);
-        currentRow = currentRow - 3;
+        currentRow-= numForward;
         StackPane newSP = new StackPane();
         Rectangle newRect = new Rectangle();
         newRect.setWidth(100);

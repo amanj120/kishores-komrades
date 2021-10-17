@@ -5,8 +5,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Random;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class UnitTest {
 
@@ -101,6 +100,42 @@ public class UnitTest {
         assertEquals(at00.size(), 2);
         assertTrue(at00.contains(p1));
         assertTrue(at00.contains(p4));
+    }
+
+    @Test
+    public void testGameOverFalse() {
+        Player p1 = new Player("p1", 0, 0, 0);
+        Player p2 = new Player("p1", 0, 2, 3);
+        Player p3 = new Player("p1", 0, 0, 3);
+        Player p4 = new Player("p1", 0, 0, 0);
+
+        ArrayList<Player> players = new ArrayList<>();
+        players.add(p1);
+        players.add(p2);
+        players.add(p3);
+        players.add(p4);
+
+        assertFalse(GameLogic.isGameOver(players));
+    }
+
+    @Test
+    public void testGameOverTrue() {
+        Player p1 = new Player("p1", 0, 0, 0);
+        Player p2 = new Player("p1", 0, 2, 3);
+        Player p3 = new Player("p1", 0, 0, 3);
+        Player p4 = new Player("p1", 0, 0, 0);
+
+        ArrayList<Player> players = new ArrayList<>();
+        players.add(p1);
+        players.add(p2);
+        players.add(p3);
+        players.add(p4);
+
+        for (Player p : players) {
+            p.setDone();
+        }
+
+        assertTrue(GameLogic.isGameOver(players));
     }
 
 }

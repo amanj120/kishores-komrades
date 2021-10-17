@@ -46,7 +46,7 @@ public class BoardGame extends javafx.application.Application {
         stage.setMinHeight(600);
         stage.setMinWidth(520);
         VBox startBox = new VBox();
-         startBox.setAlignment(Pos.CENTER);
+        startBox.setAlignment(Pos.CENTER);
         Text text = new Text("Welcome!\n\n");
         text.setTextAlignment(TextAlignment.CENTER);
         text.setFont(new Font(30));
@@ -184,8 +184,6 @@ public class BoardGame extends javafx.application.Application {
         this.stage.setScene(scene);
         this.stage.show();
     }
-
-
 
     private void setupBoard() {
         this.gp = new GridPane();

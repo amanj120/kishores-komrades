@@ -113,4 +113,8 @@ public class GameLogic {
 
         return tiles[row][col].money;
     }
+
+    public static boolean isGameOver(ArrayList<Player> players) {
+        return players.stream().map(Player::isDone).reduce(true, Boolean::logicalAnd);
+    }
 }

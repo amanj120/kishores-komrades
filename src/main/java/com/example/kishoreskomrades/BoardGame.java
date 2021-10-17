@@ -23,33 +23,6 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 public class BoardGame extends javafx.application.Application {
-
-    private class Pair {
-        int row;
-        int col;
-
-        private Pair(int row, int col) {
-            this.row = row;
-            this.col = col;
-        }
-    }
-
-    private class Tile {
-        int row;
-        int col;
-        int money;
-        boolean isChance;
-        boolean isRedTile;
-
-        private Tile(int row, int col, int money, boolean isChance, boolean isRedTile) {
-            this.row = row;
-            this.col = col;
-            this.money = money;
-            this.isChance = isChance;
-            this.isRedTile = isRedTile;
-        }
-    }
-
     Label gameInfo;
     GridPane gp;
     Stage stage;
@@ -58,13 +31,11 @@ public class BoardGame extends javafx.application.Application {
     static final int COLS = 12;
     static final int ROWS = 6;
     static final int MAX_MONEY = 25;
-    static final int num_chance = (int)(COLS * ROWS * 0.1);
-    static final int num_reds = (int)(COLS * ROWS * 0.45);
 
-    boolean isRed;
+    boolean isTextRed;
     int currPlayer = 0;
 
-    Tile[][] tiles;
+    GameLogic.Tile[][] tiles;
     Random game_rng;
 
     @Override
@@ -170,7 +141,7 @@ public class BoardGame extends javafx.application.Application {
                     actiontarget.setText("Please input at least two valid names\n(alphanumeric strings between 1 and 8 characters)");
                 } else {
                     RadioButton colorToggle = (RadioButton) playersColorTG.getSelectedToggle();
-                    isRed = colorToggle.getText().equals("Red") ? true : false;
+                    isTextRed = colorToggle.getText().equals("Red") ? true : false;
                     Collections.shuffle(players);
                     showMainGameScreen(e);
                 }
@@ -214,6 +185,8 @@ public class BoardGame extends javafx.application.Application {
         this.stage.show();
     }
 
+
+
     private void setupBoard() {
         this.gp = new GridPane();
         this.gameInfo = new Label();
@@ -223,41 +196,7 @@ public class BoardGame extends javafx.application.Application {
         gp.setPadding(new Insets(16));
         gp.setAlignment(Pos.CENTER);
 
-        int num_tiles = ROWS * COLS;
-
-        tiles = new Tile[ROWS][COLS];
-
-        ArrayList<Pair> shuffle = new ArrayList<>();
-        for (int row = 0; row < ROWS; row ++) {
-            for (int col = 0; col < COLS; col++) {
-                shuffle.add(new Pair(row, col));
-            }
-        }
-        Collections.shuffle(shuffle);
-
-        for (int i = 0; i < num_chance; i++) { // chance tiles
-            int money = (game_rng.nextInt(MAX_MONEY) + 1);
-            if (game_rng.nextInt(2) == 0) {
-                money = -1 * money;
-            }
-            Pair p = shuffle.get(i);
-            tiles[p.row][p.col] = new Tile(p.row, p.col, money, true, false);
-        }
-
-        for (int i = num_chance; i < num_chance + num_reds; i++) { // red tiles
-            int money = (game_rng.nextInt(MAX_MONEY) + 1);
-            money = -1 * money;
-            Pair p = shuffle.get(i);
-            tiles[p.row][p.col] = new Tile(p.row, p.col, money, false, true);
-        }
-
-        for (int i = num_chance + num_reds; i < num_tiles; i++) { //green tiles
-            int money = (game_rng.nextInt(MAX_MONEY) + 1);
-            Pair p = shuffle.get(i);
-            tiles[p.row][p.col] = new Tile(p.row, p.col, money, false, false);
-        }
-
-        tiles[ROWS - 1][COLS - 1] = new Tile(ROWS - 1, COLS - 1, 0, false, false);
+        tiles = GameLogic.setupTiles(ROWS, COLS, MAX_MONEY, game_rng);
     }
 
     private void refreshBoard() {
@@ -275,7 +214,7 @@ public class BoardGame extends javafx.application.Application {
                     t = new Text("Finish\n" + player_string);
                 } else{
                     t = new Text(player_string);
-                    if (isRed) {
+                    if (isTextRed) {
                         t.setFill(Color.RED);
                     } else {
                         t.setFill(Color.BLUE);
@@ -312,17 +251,7 @@ public class BoardGame extends javafx.application.Application {
     }
 
     private String get_players_at_string(int row, int col) {
-        return String.join("\n", get_players_at(row, col).stream().map(Player::getName).collect(Collectors.toList()));
-    }
-
-    private ArrayList<Player> get_players_at(int row, int col) {
-        ArrayList<Player> ret = new ArrayList<>();
-        for (Player p: players) {
-            if (p.getCurrentRow() == row && p.getCurrentCol() == col) {
-                ret.add(p);
-            }
-        }
-        return ret;
+        return String.join("\n", GameLogic.getPlayersAt(players, row, col).stream().map(Player::getName).collect(Collectors.toList()));
     }
 
     private void endTurn(ActionEvent e) {
@@ -331,34 +260,19 @@ public class BoardGame extends javafx.application.Application {
     }
 
     private void moveDiceRoll (ActionEvent e) {
-        Player currPlayerObj = players.get(this.currPlayer);
-        int row = currPlayerObj.getCurrentRow();
-        int col = currPlayerObj.getCurrentCol();
+        Player player = players.get(this.currPlayer);
         int roll = game_rng.nextInt(6) + 1;
 
-        col += roll;
-        if (col >= COLS) {
-            row += 1;
-            col = col % COLS;
-        }
-        if (row >= ROWS) {
-            row = ROWS - 1;
-            col = COLS - 1;
-            currPlayerObj.setDone();
-            Alert win = new Alert(Alert.AlertType.INFORMATION);
-            win.setContentText("Player " + players.get(this.currPlayer).getName()+ " has finished the game");
-            win.show();
-        }
+        int money_change = GameLogic.movePlayer(player, roll, tiles);
 
-        if (currPlayerObj.isDone() == false) {
-            Alert a = new Alert(Alert.AlertType.INFORMATION);
-            a.setContentText("You rolled: " + roll + "\nyour money changed by: " + tiles[row][col].money);
-            a.show();
-            currPlayerObj.setMoney(currPlayerObj.getMoney() + tiles[row][col].money);
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        if (player.isDone()) {
+            alert.setContentText("Player " + players.get(this.currPlayer).getName()+ " has finished the game");
+        } else {
+            alert.setContentText("You rolled: " + roll + "\nyour money changed by: " + money_change);
         }
+        alert.show();
 
-        currPlayerObj.setCurrentRow(row);
-        currPlayerObj.setCurrentCol(col);
         refreshBoard();
     }
 

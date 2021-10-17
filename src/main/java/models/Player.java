@@ -6,12 +6,14 @@ public class Player {
     private int money;
     private int currentRow;
     private int currentCol;
+    private boolean isDone;
 
     public Player(String name, int money, int currentRow, int currentCol) {
         this.name = name;
         this.money = money;
         this.currentRow = currentRow;
         this.currentCol = currentCol;
+        this.isDone = false;
     }
 
     public String getName() {
@@ -44,5 +46,13 @@ public class Player {
 
     public void setCurrentCol(int currentCol) {
         this.currentCol = currentCol;
+    }
+
+    public void setDone() {
+        this.isDone = true;
+    }
+
+    public boolean isDone() {
+        return this.isDone;
     }
 }

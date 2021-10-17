@@ -69,7 +69,7 @@ public class GameLogic {
             Pair p = shuffle.get(i);
             tile_arr[p.row][p.col] = new Tile(p.row, p.col, money, false, false);
         }
-
+        // Finish Tile should not change money
         tile_arr[numRows - 1][numCols - 1] = new Tile(numRows - 1, numCols - 1, 0, false, false);
         return tile_arr;
     }
@@ -100,10 +100,7 @@ public class GameLogic {
             player.setDone();
         }
 
-        if (player.isDone() == false) {
-            player.setMoney(player.getMoney() + tiles[row][col].money);
-        }
-
+        player.setMoney(player.getMoney() + tiles[row][col].money);
         player.setCurrentRow(row);
         player.setCurrentCol(col);
 

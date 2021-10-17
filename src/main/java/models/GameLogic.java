@@ -1,10 +1,9 @@
-package com.example.kishoreskomrades;
-
-import models.Player;
+package models;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class GameLogic {
 
@@ -70,19 +69,13 @@ public class GameLogic {
             Pair p = shuffle.get(i);
             tile_arr[p.row][p.col] = new Tile(p.row, p.col, money, false, false);
         }
-
+        // Finish Tile should not change money
         tile_arr[numRows - 1][numCols - 1] = new Tile(numRows - 1, numCols - 1, 0, false, false);
         return tile_arr;
     }
 
     public static ArrayList<Player> getPlayersAt(ArrayList<Player> players, int row, int col) {
-        ArrayList<Player> ret = new ArrayList<>();
-        for (Player p: players) {
-            if (p.getCurrentRow() == row && p.getCurrentCol() == col) {
-                ret.add(p);
-            }
-        }
-        return ret;
+        return players.stream().filter((Player p )-> p.getCurrentCol() == col && p.getCurrentRow() == row).collect(Collectors.toCollection(ArrayList::new));
     }
 
     public static int movePlayer(Player player, int roll, Tile[][] tiles) {
@@ -101,13 +94,13 @@ public class GameLogic {
         if (row >= boardRows) {
             row = boardRows - 1;
             col = boardCols - 1;
+        }
+
+        if (row == boardRows - 1 && col == boardCols - 1) {
             player.setDone();
         }
 
-        if (player.isDone() == false) {
-            player.setMoney(player.getMoney() + tiles[row][col].money);
-        }
-
+        player.setMoney(player.getMoney() + tiles[row][col].money);
         player.setCurrentRow(row);
         player.setCurrentCol(col);
 

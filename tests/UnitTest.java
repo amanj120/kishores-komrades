@@ -1,4 +1,4 @@
-import com.example.kishoreskomrades.GameLogic;
+import models.GameLogic;
 import models.Player;
 import org.junit.Test;
 

@@ -14,6 +14,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
+import models.GameLogic;
 import models.Player;
 
 import java.io.IOException;
@@ -23,19 +24,22 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 public class BoardGame extends javafx.application.Application {
+
+    /* JavaFX Variables we need */
     Label gameInfo;
     GridPane gp;
     Stage stage;
-    ArrayList<Player> players;
 
+    /* Game Parameters */
     static final int COLS = 12;
     static final int ROWS = 6;
     static final int MAX_MONEY = 25;
-
     boolean isTextRed;
     int currPlayer = 0;
 
+    /* Game Logic Stuff */
     GameLogic.Tile[][] tiles;
+    ArrayList<Player> players;
     Random game_rng;
 
     @Override
@@ -122,29 +126,26 @@ public class BoardGame extends javafx.application.Application {
         final Text actiontarget = new Text();
         initialInputGrid.add(actiontarget, 1, 10);
 
-        btn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                players = new ArrayList<>();
-                RadioButton startMoneyToggle = (RadioButton) startMoneyTG.getSelectedToggle();
-                int startingMoney = Integer.parseInt(startMoneyToggle.getText());
+        btn.setOnAction((eventHandler) -> {
+            players = new ArrayList<>();
+            RadioButton startMoneyToggle = (RadioButton) startMoneyTG.getSelectedToggle();
+            int startingMoney = Integer.parseInt(startMoneyToggle.getText());
 
-                for (TextField tf : pnames) {
-                    String name = tf.getText().trim();
-                    if (name.length() > 0 && name.length() <= 8 && name.matches("^[a-zA-Z0-9]*$")) {
-                        players.add(new Player(name, startingMoney, 0, 0));
-                    }
+            for (TextField tf : pnames) {
+                String name = tf.getText().trim();
+                if (name.length() > 0 && name.length() <= 8 && name.matches("^[a-zA-Z0-9]*$")) {
+                    players.add(new Player(name, startingMoney, 0, 0));
                 }
+            }
 
-                if (players.size() < 2) {
-                    actiontarget.setFill(Color.FIREBRICK);
-                    actiontarget.setText("Please input at least two valid names\n(alphanumeric strings between 1 and 8 characters)");
-                } else {
-                    RadioButton colorToggle = (RadioButton) playersColorTG.getSelectedToggle();
-                    isTextRed = colorToggle.getText().equals("Red") ? true : false;
-                    Collections.shuffle(players);
-                    showMainGameScreen(e);
-                }
+            if (players.size() < 2) {
+                actiontarget.setFill(Color.FIREBRICK);
+                actiontarget.setText("Please input at least two valid names\n(alphanumeric strings between 1 and 8 characters)");
+            } else {
+                RadioButton colorToggle = (RadioButton) playersColorTG.getSelectedToggle();
+                isTextRed = colorToggle.getText().equals("Red") ? true : false;
+                Collections.shuffle(players);
+                showMainGameScreen(e);
             }
         });
 

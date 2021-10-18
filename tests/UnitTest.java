@@ -131,9 +131,7 @@ public class UnitTest {
         players.add(p3);
         players.add(p4);
 
-        for (Player p : players) {
-            p.setDone();
-        }
+        p2.setDone();
 
         assertTrue(GameLogic.isGameOver(players));
     }

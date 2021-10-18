@@ -7,6 +7,12 @@ import java.util.stream.Collectors;
 
 public class GameLogic {
 
+    private int numChanceTypes = 6; // Not including None
+
+    private enum ChanceCard {
+        NONE, GAIN_MONEY, LOSE_MONEY, MOVE_FORWARD, MOVE_BACK, SWAP_LOSER, SWAP_WINNER
+    }
+
     private static class Pair {
         int row;
         int col;
@@ -21,15 +27,48 @@ public class GameLogic {
         public int row;
         public int col;
         public int money;
-        public boolean isChance;
+        public int move; // used only for chance cards
+        public ChanceCard chance;
         public boolean isRedTile;
 
-        public Tile(int row, int col, int money, boolean isChance, boolean isRedTile) {
+        public Tile(int row, int col, int money, ChanceCard isChance, boolean isRedTile) {
             this.row = row;
             this.col = col;
             this.money = money;
+            this.move = 0;
             this.isChance = isChance;
             this.isRedTile = isRedTile;
+        }
+    }
+
+    public static Tile getRandomChance(int row, int col, int maxMoney, Random random) {
+        int chanceType = random.nextInt(numChanceTypes) + 1;
+        ChanceCard card = (ChanceCard) chanceType;
+
+        switch (card) {
+            case GAIN_MONEY:
+                int money = (random.nextInt(maxMoney) + 1);
+                return new Tile(row, col, money, GAIN_MONEY, false);
+            case LOSE_MONEY:
+                int money = -1 * (random.nextInt(maxMoney) + 1);
+                return new Tile(row, col, money, LOSE_MONEY, false);
+            case MOVE_FORWARD:
+                int move = (random.nextInt(6) + 1);
+                Tile t = Tile(row, col, money, MOVE_FORWARD, false);
+                t.move = move;
+                return t;
+            case MOVE_BACK:
+                int move = -1 * (random.nextInt(6) + 1);
+                Tile t = Tile(row, col, money, MOVE_BACK, false);
+                t.move = move;
+                return t;
+            case SWAP_LOSER:
+                return new Tile(row, col, 0, SWAP_LOSER, false);
+            case SWAP_WINNER:
+                return new Tile(row, col, 0, SWAP_WINNER, false);
+            default:
+                int money = (random.nextInt(maxMoney) + 1);
+                return new Tile(row, col, money, GAIN_MONEY, false);
         }
     }
 
@@ -49,12 +88,8 @@ public class GameLogic {
         Collections.shuffle(shuffle);
 
         for (int i = 0; i < num_chance; i++) { // chance tiles
-            int money = (random.nextInt(maxMoney) + 1);
-            if (random.nextInt(2) == 0) {
-                money = -1 * money;
-            }
             Pair p = shuffle.get(i);
-            tile_arr[p.row][p.col] = new Tile(p.row, p.col, money, true, false);
+            tile_arr[p.row][p.col] = getRandomChance(p.row, p.col, maxMoney, random);
         }
 
         for (int i = num_chance; i < num_chance + num_reds; i++) { // red tiles
@@ -108,6 +143,6 @@ public class GameLogic {
     }
 
     public static boolean isGameOver(ArrayList<Player> players) {
-        return players.stream().map(Player::isDone).reduce(true, Boolean::logicalAnd);
+        return players.stream().map(Player::isDone).reduce(false, Boolean::logicalOr);
     }
 }

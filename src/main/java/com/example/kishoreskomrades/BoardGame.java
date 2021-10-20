@@ -45,9 +45,13 @@ public class BoardGame extends javafx.application.Application {
     public void start(Stage stage) throws IOException {
         this.game_rng = new Random(System.currentTimeMillis());
         this.stage = stage;
-        stage.setTitle("Digital Board Game");
-        stage.setMinHeight(600);
-        stage.setMinWidth(520);
+        showWelcomeScreen();
+    }
+
+    private void showWelcomeScreen() {
+        this.stage.setTitle("Digital Board Game");
+        this.stage.setMinHeight(600);
+        this.stage.setMinWidth(520);
         VBox startBox = new VBox();
         startBox.setAlignment(Pos.CENTER);
         Text text = new Text("Welcome!\n\n");
@@ -57,9 +61,11 @@ public class BoardGame extends javafx.application.Application {
         Button startButton = new Button("Start!");
         startButton.setOnAction(e -> showInitialConfigScreen(e));
         startBox.getChildren().add(startButton);
+        startBox.setMinHeight(600);
+        startBox.setMinWidth(520);
         Scene scene = new Scene(startBox);
-        stage.setScene(scene);
-        stage.show();
+        this.stage.setScene(scene);
+        this.stage.show();
     }
 
     private void showInitialConfigScreen(ActionEvent e) {
@@ -187,13 +193,15 @@ public class BoardGame extends javafx.application.Application {
 
     private void showFinishScreen(ActionEvent ae) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setContentText(GameLogic.getGameOverString(players));
+        Label label = new Label(GameLogic.getGameOverString(players));
+        label.setWrapText(true);
+        alert.getDialogPane().setContent(label);
         alert.show();
 
         Button endTurn = new Button("Play Again");
         endTurn.setMinHeight(50);
         endTurn.setMinWidth(100);
-        endTurn.setOnAction(e -> showInitialConfigScreen(e));
+        endTurn.setOnAction(e -> showWelcomeScreen());
 
         VBox vBox = new VBox();
         vBox.getChildren().add(gp);
@@ -287,7 +295,9 @@ public class BoardGame extends javafx.application.Application {
         String move_message = GameLogic.movePlayer(players, this.currPlayer, roll, tiles);
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setContentText(move_message);
+        Label label = new Label(move_message);
+        label.setWrapText(true);
+        alert.getDialogPane().setContent(label);
         alert.show();
 
         refreshBoard();

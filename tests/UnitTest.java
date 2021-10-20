@@ -47,7 +47,7 @@ public class UnitTest {
     @Test
     public void testFinishTileIsNotChance() {
         GameLogic.Tile[][] t = GameLogic.setupTiles(10, 10, 100, new Random());
-        assertEquals(t[9][9].isChance, false);
+        assertEquals(t[9][9].chance, GameLogic.ChanceCard.NONE);
     }
 
     @Test
@@ -62,7 +62,7 @@ public class UnitTest {
         int num_chance = 0;
         for (GameLogic.Tile row[] : t){
             for (GameLogic.Tile tile : row) {
-                if (tile.isChance) {
+                if (tile.chance != GameLogic.ChanceCard.NONE) {
                     num_chance += 1;
                 }
             }

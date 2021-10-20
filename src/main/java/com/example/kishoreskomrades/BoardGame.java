@@ -1,7 +1,6 @@
 package com.example.kishoreskomrades;
 
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -31,8 +30,8 @@ public class BoardGame extends javafx.application.Application {
     Stage stage;
 
     /* Game Parameters */
-    static final int COLS = 12;
-    static final int ROWS = 6;
+    static final int COLS = 11;
+    static final int ROWS = 5;
     static final int MAX_MONEY = 25;
     boolean isTextRed;
     int currPlayer = 0;
@@ -145,7 +144,7 @@ public class BoardGame extends javafx.application.Application {
                 RadioButton colorToggle = (RadioButton) playersColorTG.getSelectedToggle();
                 isTextRed = colorToggle.getText().equals("Red") ? true : false;
                 Collections.shuffle(players);
-                showMainGameScreen(e);
+                showMainGameScreen(null);
             }
         });
 
@@ -180,6 +179,27 @@ public class BoardGame extends javafx.application.Application {
         VBox vBox = new VBox();
         vBox.getChildren().add(buttonBox);
         vBox.getChildren().add(gp);
+
+        Scene scene = new Scene(vBox);
+        this.stage.setScene(scene);
+        this.stage.show();
+    }
+
+    private void showFinishScreen(ActionEvent ae) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setContentText(GameLogic.getGameOverString(players));
+        alert.show();
+
+        Button endTurn = new Button("Play Again");
+        endTurn.setMinHeight(50);
+        endTurn.setMinWidth(100);
+        endTurn.setOnAction(e -> showInitialConfigScreen(e));
+
+        VBox vBox = new VBox();
+        vBox.getChildren().add(gp);
+        vBox.getChildren().add(endTurn);
+        vBox.setAlignment(Pos.CENTER);
+        vBox.setPadding(new Insets(16));
 
         Scene scene = new Scene(vBox);
         this.stage.setScene(scene);
@@ -222,7 +242,7 @@ public class BoardGame extends javafx.application.Application {
 
                 rect.setStyle("-fx-stroke: white; -fx-stroke-width: 1;");
 
-                if (tiles[row][col].isChance) {
+                if (tiles[row][col].chance != GameLogic.ChanceCard.NONE) {
                     rect.setFill(Color.LIGHTSKYBLUE);
                 } else if (tiles[row][col].isRedTile) {
                     rect.setFill(Color.LIGHTPINK);
@@ -256,23 +276,24 @@ public class BoardGame extends javafx.application.Application {
     private void endTurn(ActionEvent e) {
         currPlayer = (currPlayer + 1) % players.size();
         refreshBoard();
+        if (GameLogic.isGameOver(players)) {
+            showFinishScreen(null);
+        }
     }
 
     private void moveDiceRoll (ActionEvent e) {
-        Player player = players.get(this.currPlayer);
         int roll = game_rng.nextInt(6) + 1;
 
-        int money_change = GameLogic.movePlayer(player, roll, tiles);
+        String move_message = GameLogic.movePlayer(players, this.currPlayer, roll, tiles);
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        if (player.isDone()) {
-            alert.setContentText("Player " + players.get(this.currPlayer).getName()+ " has finished the game");
-        } else {
-            alert.setContentText("You rolled: " + roll + "\nyour money changed by: " + money_change);
-        }
+        alert.setContentText(move_message);
         alert.show();
 
         refreshBoard();
+        if (GameLogic.isGameOver(players)) {
+            showFinishScreen(null);
+        }
     }
 
     public static void main(String[] args) {

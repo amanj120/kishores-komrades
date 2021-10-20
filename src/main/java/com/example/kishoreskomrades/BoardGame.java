@@ -197,6 +197,11 @@ public class BoardGame extends javafx.application.Application {
         endTurn.setMinWidth(100);
         endTurn.setOnAction(e -> endTurn(e));
 
+        buttonBox.getChildren().clear();
+        buttonBox.getChildren().add(gameInfo);
+        buttonBox.getChildren().add(rollDice);
+        buttonBox.getChildren().add(endTurn);
+
         VBox vBox = new VBox();
         vBox.getChildren().add(buttonBox);
         vBox.getChildren().add(gp);
@@ -228,29 +233,29 @@ public class BoardGame extends javafx.application.Application {
         tiles = GameLogic.setupTiles(ROWS, COLS, MAX_MONEY, game_rng);
     }
 
-//    private void showFinishScreen(ActionEvent ae) {
-//        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-//        Label label = new Label(GameLogic.getGameOverString(players));
-//        label.setWrapText(true);
-//        alert.getDialogPane().setContent(label);
-//        alert.show();
-//
-//        Button playAgain = new Button("Play Again");
-//        playAgain.setMinHeight(50);
-//        playAgain.setMinWidth(100);
-//        playAgain.setOnAction(e -> showWelcomeScreen());
-//
-//        VBox vBox = new VBox();
-//        vBox.getChildren().add(gp);
-//        vBox.getChildren().add(playAgain);
-//        vBox.setAlignment(Pos.CENTER);
-//        vBox.setPadding(new Insets(16));
-//
-//        Scene scene = new Scene(vBox);
-//        this.stage.setScene(scene);
+    private void showFinishScreen(ActionEvent ae) {
+        Label label = new Label(GameLogic.getGameOverString(players));
+        label.setWrapText(true);
+
+        Button playAgain = new Button("Play Again");
+        playAgain.setMinHeight(50);
+        playAgain.setMinWidth(100);
+        playAgain.setOnAction(e -> showWelcomeScreen());
+
+        VBox vBox = new VBox();
+        vBox.getChildren().add(label);
+        vBox.getChildren().add(playAgain);
+        vBox.setAlignment(Pos.CENTER);
+        vBox.setPadding(new Insets(16));
+        vBox.setSpacing(16);
+        vBox.setMinWidth(520);
+        vBox.setMinHeight(600);
+
+        Scene scene = new Scene(vBox);
+        this.stage.setScene(scene);
 //        this.stage.setFullScreen(true);
-//        this.stage.show();
-//    }
+        this.stage.show();
+    }
 
     private void refreshBoard() {
         gp.getChildren().clear();
@@ -290,16 +295,6 @@ public class BoardGame extends javafx.application.Application {
         }
 
         gameInfo.setText(getGameInfoString());
-
-        buttonBox.getChildren().clear();
-        buttonBox.getChildren().add(gameInfo);
-
-        if (GameLogic.isGameOver(players)) {
-            buttonBox.getChildren().add(playAgain);
-        } else {
-            buttonBox.getChildren().add(rollDice);
-            buttonBox.getChildren().add(endTurn);
-        }
     }
 
     private String getGameInfoString() {
@@ -320,9 +315,9 @@ public class BoardGame extends javafx.application.Application {
     private void endTurn(ActionEvent e) {
         currPlayer = (currPlayer + 1) % players.size();
         refreshBoard();
-//        if (GameLogic.isGameOver(players)) {
-//            showFinishScreen(null);
-//        }
+        if (GameLogic.isGameOver(players)) {
+            showFinishScreen(null);
+        }
     }
 
     private void moveDiceRoll (ActionEvent e) {
@@ -339,9 +334,9 @@ public class BoardGame extends javafx.application.Application {
         lastTurn.setText(move_message);
 
         refreshBoard();
-//        if (GameLogic.isGameOver(players)) {
-//            showFinishScreen(null);
-//        }
+        if (GameLogic.isGameOver(players)) {
+            showFinishScreen(null);
+        }
     }
 
     public static void main(String[] args) {

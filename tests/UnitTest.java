@@ -136,4 +136,46 @@ public class UnitTest {
         assertTrue(GameLogic.isGameOver(players));
     }
 
+    @Test
+    public void testPlayerIsCloseToPaywall() {
+        GameLogic.Tile[][] t = GameLogic.setupTiles(10, 10, 100, new Random());
+        Player p1 = new Player("p1", 0, 5, 5);
+
+        assertTrue(GameLogic.closeEnoughToPayPaywall(p1, example_tiles));
+    }
+
+    @Test
+    public void testPlayerIsFarFromPaywall() {
+        GameLogic.Tile[][] example_tiles = GameLogic.setupTiles(10, 10, 100, new Random());
+        Player p1 = new Player("p1", 0, 0, 0);
+        assertFalse(GameLogic.closeEnoughToPayPaywall(p1, example_tiles));
+    }
+
+
+    @Test
+    public void testFailPaywall() {
+
+    }
+
+    @Test
+    public void testPaywallDeductsMoney() {
+
+        Player p1 = new Player("p1", 0, 2, 3);
+
+        ArrayList<Player> players = new ArrayList<>();
+        players.add(p1);
+
+
+    }
+
+    @Test
+    public void testPassPaywall() {
+
+    }
+
+    @Test
+    public void testPaywallFreeAfterPay() {
+
+    }
+
 }

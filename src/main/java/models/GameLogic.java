@@ -189,6 +189,10 @@ public class GameLogic {
         return paywallExists;
     }
 
+    public static int getPaywallCost() {
+        return paywallCost;
+    }
+
     public static String movePlayer(List<Player> players, int curPlayer, int roll, Tile[][] tiles) {
         Player player = players.get(curPlayer);
 

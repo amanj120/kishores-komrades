@@ -262,20 +262,19 @@ public class UnitTest {
 
         // Simulate all possible dice rolls that pass the barrier
         // i: Tracks the player position
-        // j: Tracks the all dice values
-        for (int i = 1; i < 7; i++) {
-            for (int j = 1; j < 7; j++) {
-                // Reset player position
+        // j: Tracks the all dice values, note: we only choose values that will send us over paywall
+        for (int i = 1; i < num_columns / 2; i++) {
+            for (int j = i; j < 7; j++) {
+                // Reset player position to right at paywall
                 p1.setCurrentRow(player_x);
                 p1.setCurrentCol(player_y);
 
-                int simulated_dice_roll = j;
                 p1.setCurrentCol(player_y - i); // Update the player position
-
                 // Are we now behind the paywall?
                 assertFalse(GameLogic.passedPaywall(p1.getCurrentRow(), p1.getCurrentCol(), t));
 
                 // Simulate moving past paywall without paying
+                int simulated_dice_roll = j;
                 GameLogic.movePlayer(players, current_player, simulated_dice_roll, t);
 
                 // Assert player position is back to "square one"

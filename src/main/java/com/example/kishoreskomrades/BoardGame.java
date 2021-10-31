@@ -31,6 +31,7 @@ public class BoardGame extends javafx.application.Application {
     Button playAgain;
     Button rollDice;
     Button endTurn;
+    Button payPaywall;
     HBox buttonBox;
 
     GridPane gp;
@@ -50,6 +51,9 @@ public class BoardGame extends javafx.application.Application {
 
     @Override
     public void start(Stage stage) throws IOException {
+        if (ROWS != 5 || COLS != 11) { // for now
+            return;
+        }
         this.game_rng = new Random(System.currentTimeMillis());
         this.stage = stage;
 //        this.stage.setFullScreen(true);
@@ -197,9 +201,15 @@ public class BoardGame extends javafx.application.Application {
         endTurn.setMinWidth(100);
         endTurn.setOnAction(e -> endTurn(e));
 
+        payPaywall = new Button("Pay Paywall ($125)");
+        payPaywall.setMinHeight(50);
+        payPaywall.setMinWidth(100);
+        payPaywall.setOnAction(e -> paywall(e));
+
         buttonBox.getChildren().clear();
         buttonBox.getChildren().add(gameInfo);
         buttonBox.getChildren().add(rollDice);
+        buttonBox.getChildren().add(payPaywall);
         buttonBox.getChildren().add(endTurn);
 
         VBox vBox = new VBox();
@@ -281,7 +291,13 @@ public class BoardGame extends javafx.application.Application {
 
                 rect.setStyle("-fx-stroke: white; -fx-stroke-width: 1;");
 
-                if (tiles[row][col].chance != GameLogic.ChanceCard.NONE) {
+                if (tiles[row][col].chance == GameLogic.ChanceCard.PAYWALL) {
+                    if (GameLogic.getPaywallExists()) {
+                        rect.setFill(Color.ORANGE);
+                    } else {
+                        rect.setFill(Color.LIGHTGREEN);
+                    }
+                } else if (tiles[row][col].chance != GameLogic.ChanceCard.NONE) {
                     rect.setFill(Color.LIGHTSKYBLUE);
                 } else if (tiles[row][col].isRedTile) {
                     rect.setFill(Color.LIGHTPINK);
@@ -318,6 +334,11 @@ public class BoardGame extends javafx.application.Application {
         if (GameLogic.isGameOver(players)) {
             showFinishScreen(null);
         }
+    }
+
+    private void paywall(ActionEvent e) {
+        lastTurn.setText(GameLogic.payPaywall(this.players.get(this.currPlayer)));
+        refreshBoard();
     }
 
     private void moveDiceRoll (ActionEvent e) {

@@ -228,7 +228,7 @@ public class UnitTest {
 
         GameLogic.payPaywall(p1, t);
 
-        assertTrue(p1.getMoney() == 0);
+        assertEquals(0, p1.getMoney());
     }
 
     @Test
@@ -237,30 +237,52 @@ public class UnitTest {
         int num_columns = 10;
         GameLogic.Tile[][] t = GameLogic.setupTiles(num_rows, num_columns, 100, new Random());
 
-        // Setup player right behind paywall
+        // Setup player right at paywall
         int player_x = num_rows / 2;
-        int player_y = num_columns / 2 - 1;
+        int player_y = num_columns / 2;
 
-        // Setup player money less than paywall cost
+        // Setup player money to beless than paywall cost
         int starting_money = 0;
         int paywall_fee = GameLogic.getPaywallCost();
         assertTrue(starting_money < paywall_fee);
 
         // Create Player 1 and simulate dice roll
-        Player p1 = new Player("p1", starting_money, player_x, player_y);
+        Player p1 = new Player("p1", 0, 0, 0);
+        Player p2 = new Player("p1", 0, 2, 3);
+        Player p3 = new Player("p1", 0, 0, 3);
+        Player p4 = new Player("p1", 0, 0, 0);
+
         ArrayList<Player> players = new ArrayList<>();
         players.add(p1);
-        int current_player = 0; // There's only one player
+        players.add(p2);
+        players.add(p3);
+        players.add(p4);
 
-        int simulated_dice_roll = 1;
-        assertTrue(simulated_dice_roll > 0 && simulated_dice_roll < 6); // Ensure roll is legal
+        int current_player = 0;
 
-        // Simulate moving past paywall without paying
-        GameLogic.movePlayer(players, current_player, simulated_dice_roll, t);
+        // Simulate all possible dice rolls that pass the barrier
+        // i: Tracks the player position
+        // j: Tracks the all dice values
+        for (int i = 1; i < 7; i++) {
+            for (int j = 1; j < 7; j++) {
+                // Reset player position
+                p1.setCurrentRow(player_x);
+                p1.setCurrentCol(player_y);
 
-        assertTrue(p1.getCurrentCol() == 0);
-        assertTrue(p1.getCurrentRow() == 0);
-        assertEquals(p1.getMoney(), starting_money);
+                int simulated_dice_roll = j;
+                p1.setCurrentCol(player_y - i); // Update the player position
+
+                // Are we now behind the paywall?
+                assertFalse(GameLogic.passedPaywall(p1.getCurrentRow(), p1.getCurrentCol(), t));
+
+                // Simulate moving past paywall without paying
+                GameLogic.movePlayer(players, current_player, simulated_dice_roll, t);
+
+                // Assert player position is back to "square one"
+                assertEquals(0, p1.getCurrentRow());
+                assertEquals(0, p1.getCurrentCol());
+            }
+        }
     }
 
     @Test
@@ -283,14 +305,18 @@ public class UnitTest {
 
         // Player 1 pays the paywall
         GameLogic.payPaywall(p1, t);
+        assertEquals(0, p1.getMoney());
 
         // Player 2 attempts to pass through now paid paywall
-        int simulated_dice_roll = 2;
-        assertTrue(simulated_dice_roll > 0 && simulated_dice_roll < 6); // Ensure roll is legal
+        int p2_starting_money = p2.getMoney();
+
+        int simulated_dice_roll = 1;
         GameLogic.movePlayer(players, 1, simulated_dice_roll, t);
 
-        assertNotEquals(p2.getCurrentRow(), 0);
-        assertNotEquals(p2.getCurrentCol(), 0);
-        assertEquals(p2.getMoney(), paywall_fee);
+        // Player 2 should not have been moved back
+        assertNotEquals(0, p2.getCurrentRow());
+        assertNotEquals(0, p2.getCurrentCol());
+        // Player 2 should not have paid the fee
+        assertEquals(p2_starting_money, p2.getMoney());
     }
 }

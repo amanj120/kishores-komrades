@@ -1,9 +1,6 @@
 package models;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class GameLogic {
@@ -12,7 +9,7 @@ public class GameLogic {
     private static boolean paywallExists = true;
     private static final int paywallCost = 125;
 
-    public enum ChanceCard {
+    public enum Attribute {
         NONE, GAIN_MONEY, LOSE_MONEY, MOVE_FORWARD, MOVE_BACK, SWAP_RANDOM, PAYWALL
     }
 
@@ -30,49 +27,49 @@ public class GameLogic {
         public int row;
         public int col;
         public int money;
-        public int move; // used only for chance cards
-        public ChanceCard chance;
+        public int move; // used only for attribute cards
+        public Attribute attribute;
         public boolean isRedTile;
 
-        public Tile(int row, int col, int money, ChanceCard chance, boolean isRedTile) {
+        public Tile(int row, int col, int money, Attribute attribute, boolean isRedTile) {
             this.row = row;
             this.col = col;
             this.money = money;
             this.move = 0;
-            this.chance = chance;
+            this.attribute = attribute;
             this.isRedTile = isRedTile;
         }
     }
 
     public static Tile getRandomChanceTile(int row, int col, int maxMoney, Random random) {
         int chanceType = random.nextInt(numChanceTypes) + 1;
-        ChanceCard card = ChanceCard.values()[chanceType];
+        Attribute card = Attribute.values()[chanceType];
         int money = (random.nextInt(maxMoney) + 1);
         int move = (random.nextInt(6) + 1);
         Tile t;
 
         switch (card) {
             case LOSE_MONEY:
-                return new Tile(row, col, -1 * money, ChanceCard.LOSE_MONEY, false);
+                return new Tile(row, col, -1 * money, Attribute.LOSE_MONEY, false);
             case MOVE_FORWARD:
-                t = new Tile(row, col, 0, ChanceCard.MOVE_FORWARD, false);
+                t = new Tile(row, col, 0, Attribute.MOVE_FORWARD, false);
                 t.move = move;
                 return t;
             case MOVE_BACK:
-                t = new Tile(row, col, 0, ChanceCard.MOVE_BACK, false);
+                t = new Tile(row, col, 0, Attribute.MOVE_BACK, false);
                 t.move = -1 * move;
                 return t;
             case SWAP_RANDOM:
-                return new Tile(row, col, 0, ChanceCard.SWAP_RANDOM, false);
+                return new Tile(row, col, 0, Attribute.SWAP_RANDOM, false);
             default: // Gain Money
-                return new Tile(row, col, money, ChanceCard.GAIN_MONEY, false);
+                return new Tile(row, col, money, Attribute.GAIN_MONEY, false);
         }
     }
 
     public static Tile[][] setupTiles(int numRows, int numCols, int maxMoney, Random random) {
         paywallExists = true;
         int num_chance = (int)(numCols * numRows * 0.25);
-        int num_reds = (int)(numCols * numRows * 0.45);
+        int num_reds = (int)(numCols * numRows * 0.35);
 
         Tile[][] tile_arr = new Tile[numRows][numCols];
         int num_tiles = numRows * numCols;
@@ -85,7 +82,7 @@ public class GameLogic {
         }
         Collections.shuffle(shuffle);
 
-        for (int i = 0; i < num_chance; i++) { // chance tiles
+        for (int i = 0; i < num_chance; i++) { // attribute tiles
             Pair p = shuffle.get(i);
             tile_arr[p.row][p.col] = getRandomChanceTile(p.row, p.col, maxMoney, random);
         }
@@ -94,18 +91,18 @@ public class GameLogic {
             int money = (random.nextInt(maxMoney) + 1);
             money = -1 * money;
             Pair p = shuffle.get(i);
-            tile_arr[p.row][p.col] = new Tile(p.row, p.col, money, ChanceCard.NONE, true);
+            tile_arr[p.row][p.col] = new Tile(p.row, p.col, money, Attribute.NONE, true);
         }
 
         for (int i = num_chance + num_reds; i < num_tiles; i++) { //green tiles
             int money = (random.nextInt(maxMoney) + 1);
             Pair p = shuffle.get(i);
-            tile_arr[p.row][p.col] = new Tile(p.row, p.col, money, ChanceCard.NONE, false);
+            tile_arr[p.row][p.col] = new Tile(p.row, p.col, money, Attribute.NONE, false);
         }
         // Start and Finish Tile should not change money
-        tile_arr[numRows - 1][numCols - 1] = new Tile(numRows - 1, numCols - 1, 0, ChanceCard.NONE, false);
-        tile_arr[0][0] = new Tile(numRows - 1, numCols - 1, 0, ChanceCard.NONE, false);
-        tile_arr[numRows / 2][numCols / 2] = new Tile(numRows / 2, numCols / 2, 0, ChanceCard.PAYWALL, false);
+        tile_arr[numRows - 1][numCols - 1] = new Tile(numRows - 1, numCols - 1, 0, Attribute.NONE, false);
+        tile_arr[0][0] = new Tile(numRows - 1, numCols - 1, 0, Attribute.NONE, false);
+        tile_arr[numRows / 2][numCols / 2] = new Tile(numRows / 2, numCols / 2, 0, Attribute.PAYWALL, false);
         return tile_arr;
     }
 
@@ -218,7 +215,7 @@ public class GameLogic {
         player.setCurrentRow(temp_row);
         player.setCurrentCol(temp_col);
 
-        switch(tiles[temp_row][temp_col].chance) {
+        switch(tiles[temp_row][temp_col].attribute) {
             case MOVE_FORWARD:
             case MOVE_BACK:
                 int newroll = tiles[temp_row][temp_col].move;
@@ -228,21 +225,21 @@ public class GameLogic {
                 if (paywallExists && passedPaywall(temp_row, temp_col, tiles)) {
                     player.setCurrentRow(0);
                     player.setCurrentCol(0);
-                    return String.format("%s rolled %d. By landing on a chance tile, %s's position additionally changed by %d. This would put them past the paywall. Thus, they go back to the start. Should've payed up earlier", player.getName(),  roll);
+                    return String.format("%s rolled %d. By landing on a attribute tile, %s's position additionally changed by %d. This would put them past the paywall. Thus, they go back to the start. Should've payed up earlier", player.getName(),  roll);
                 }
                 if (row == boardRows - 1 && col == boardCols - 1) {
                     player.setDone();
                 }
                 player.setCurrentRow(row);
                 player.setCurrentCol(col);
-                return String.format("%s rolled %d. By landing on a chance tile, %s's position additionally changed by %d", player.getName(),  roll, player.getName(), newroll);
+                return String.format("%s rolled %d. By landing on a attribute tile, %s's position additionally changed by %d", player.getName(),  roll, player.getName(), newroll);
             case SWAP_RANDOM:
                 Player randomPlayer = players.get(getRandomPlayer(curPlayer, players.size()));
                 player.setCurrentRow(randomPlayer.getCurrentRow());
                 player.setCurrentCol(randomPlayer.getCurrentCol());
                 randomPlayer.setCurrentRow(temp_row);
                 randomPlayer.setCurrentCol(temp_col);
-                return String.format("%s rolled %d. By landing on a chance card, %s's swapped positions with %s", player.getName(), roll, player.getName(), randomPlayer.getName());
+                return String.format("%s rolled %d. By landing on a attribute card, %s's swapped positions with %s", player.getName(), roll, player.getName(), randomPlayer.getName());
             default: // Change money
                 if (player.getMoney() + tiles[temp_row][temp_col].money < 0) {
                     player.setCurrentCol(0);
@@ -258,12 +255,34 @@ public class GameLogic {
         return players.stream().map(Player::isDone).reduce(false, Boolean::logicalOr);
     }
 
+    public static int compare(Player o1, Player o2) {
+        if (o1.getCurrentRow() > o2.getCurrentRow()) {
+            return -1;
+        } else if (o1.getCurrentRow() == o2.getCurrentRow()) {
+            if (o1.getCurrentCol() > o2.getCurrentCol()) {
+                return -1;
+            } else if (o1.getCurrentCol() == o2.getCurrentCol()) {
+                return 0;
+            } else {
+                return 1;
+            }
+        } else {
+            return 1;
+        }
+    }
+
     public static String getGameOverString(ArrayList<Player> players) {
+        String gameOver = "";
         for (Player p : players) {
             if (p.isDone()) {
-                return String.format("%s won the game by reaching the finish line first!", p.getName());
+                gameOver += String.format("%s won the game by reaching the finish line first!", p.getName());
             }
         }
-        return "";
+        players.sort((Player o1, Player o2) -> compare(o1, o2));
+        int idx = 1;
+        for (Player p : players) {
+            gameOver += String.format("\nplayer %s placed %d", p.getName(), idx++);
+        }
+        return gameOver;
     }
 }

@@ -293,13 +293,13 @@ public class BoardGame extends javafx.application.Application {
 
                 rect.setStyle("-fx-stroke: white; -fx-stroke-width: 1;");
 
-                if (tiles[row][col].chance == GameLogic.ChanceCard.PAYWALL) {
+                if (tiles[row][col].attribute == GameLogic.Attribute.PAYWALL) {
                     if (GameLogic.getPaywallExists()) {
                         rect.setFill(Color.ORANGE);
                     } else {
                         rect.setFill(Color.LIGHTGREEN);
                     }
-                } else if (tiles[row][col].chance != GameLogic.ChanceCard.NONE) {
+                } else if (tiles[row][col].attribute != GameLogic.Attribute.NONE) {
                     rect.setFill(Color.LIGHTSKYBLUE);
                 } else if (tiles[row][col].isRedTile) {
                     rect.setFill(Color.LIGHTPINK);

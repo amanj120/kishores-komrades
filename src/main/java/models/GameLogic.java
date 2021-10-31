@@ -72,7 +72,7 @@ public class GameLogic {
     public static Tile[][] setupTiles(int numRows, int numCols, int maxMoney, Random random) {
         paywallExists = true;
         int num_chance = (int)(numCols * numRows * 0.25);
-        int num_reds = (int)(numCols * numRows * 0.5);
+        int num_reds = (int)(numCols * numRows * 0.45);
 
         Tile[][] tile_arr = new Tile[numRows][numCols];
         int num_tiles = numRows * numCols;
@@ -163,8 +163,18 @@ public class GameLogic {
         }
     }
 
-    public static String payPaywall(Player p) {
-        if (paywallExists && p.getMoney() >= 125) {
+    public static boolean closeEnoughToPayPaywall(Player p, Tile[][] tiles) {
+        int nrows = tiles.length;
+        int ncols = tiles[0].length;
+        int paywallIdx = ((nrows/2) * ncols) + (ncols/2);
+        int playerIdx = p.getCurrentCol() + p.getCurrentRow()*ncols;
+        return (paywallIdx - playerIdx <= 6 && paywallIdx - playerIdx >= 1);
+    }
+
+    public static String payPaywall(Player p, Tile[][] tiles) {
+        if (!closeEnoughToPayPaywall(p, tiles)) {
+            return String.format("Player %s is not close enough to the paywall to pay", p.getName());
+        } else if (paywallExists && p.getMoney() >= 125) {
             p.setMoney(p.getMoney() - 125);
             paywallExists = false;
             return String.format("Player %s paid the paywall and it is now open for everyone", p.getName());
@@ -211,6 +221,11 @@ public class GameLogic {
                 newPos = calculateNewPosition(temp_row, temp_col, newroll, boardRows, boardCols);
                 int row = newPos.row;
                 int col = newPos.col;
+                if (paywallExists && passedPaywall(temp_row, temp_col, tiles)) {
+                    player.setCurrentRow(0);
+                    player.setCurrentCol(0);
+                    return String.format("%s rolled %d. By landing on a chance tile, %s's position additionally changed by %d. This would put them past the paywall. Thus, they go back to the start. Should've payed up earlier", player.getName(),  roll);
+                }
                 if (row == boardRows - 1 && col == boardCols - 1) {
                     player.setDone();
                 }

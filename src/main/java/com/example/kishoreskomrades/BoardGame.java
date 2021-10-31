@@ -41,6 +41,8 @@ public class BoardGame extends javafx.application.Application {
     static final int COLS = 11;
     static final int ROWS = 5;
     static final int MAX_MONEY = 25;
+    static final int stageWidth = 1250;
+    static final int stageHeight = 800;
     boolean isTextRed;
     int currPlayer = 0;
 
@@ -63,8 +65,6 @@ public class BoardGame extends javafx.application.Application {
 
     private void showWelcomeScreen() {
         this.stage.setTitle("Digital Board Game");
-//        this.stage.setMinHeight(600);
-//        this.stage.setMinWidth(520);
         VBox startBox = new VBox();
         startBox.setAlignment(Pos.CENTER);
         Text text = new Text("Welcome!\n\n");
@@ -74,8 +74,8 @@ public class BoardGame extends javafx.application.Application {
         Button startButton = new Button("Start!");
         startButton.setOnAction(e -> showInitialConfigScreen(e));
         startBox.getChildren().add(startButton);
-        startBox.setMinHeight(600);
-        startBox.setMinWidth(520);
+        startBox.setMinHeight(stageHeight);
+        startBox.setMinWidth(stageWidth);
         Scene scene = new Scene(startBox);
         this.stage.setScene(scene);
 //        this.stage.setFullScreen(true);
@@ -85,8 +85,8 @@ public class BoardGame extends javafx.application.Application {
     private void showInitialConfigScreen(ActionEvent e) {
         VBox initialConfigBox = new VBox();
         GridPane initialInputGrid = new GridPane();
-        initialInputGrid.setMinHeight(600);
-        initialInputGrid.setMinWidth(520);
+        initialInputGrid.setMinHeight(stageHeight);
+        initialInputGrid.setMinWidth(stageWidth);
         initialInputGrid.setAlignment(Pos.CENTER);
         initialInputGrid.setHgap(10);
         initialInputGrid.setVgap(10);
@@ -111,9 +111,9 @@ public class BoardGame extends javafx.application.Application {
         RadioButton oneHundredRB = new RadioButton("100");
         oneHundredRB.setToggleGroup(startMoneyTG);
         oneHundredRB.setSelected(true);
-        RadioButton twoHundredRB = new RadioButton("200");
+        RadioButton twoHundredRB = new RadioButton("125");
         twoHundredRB.setToggleGroup(startMoneyTG);
-        RadioButton threeHundredRB = new RadioButton("300");
+        RadioButton threeHundredRB = new RadioButton("150");
         threeHundredRB.setToggleGroup(startMoneyTG);
         startMoneyTG.setUserData(startMoneyTG.getSelectedToggle().toString());
         VBox startMoneyVBox = new VBox();
@@ -209,7 +209,9 @@ public class BoardGame extends javafx.application.Application {
         buttonBox.getChildren().clear();
         buttonBox.getChildren().add(gameInfo);
         buttonBox.getChildren().add(rollDice);
-        buttonBox.getChildren().add(payPaywall);
+        if (GameLogic.closeEnoughToPayPaywall(players.get(this.currPlayer), this.tiles)) {
+            buttonBox.getChildren().add(payPaywall);
+        }
         buttonBox.getChildren().add(endTurn);
 
         VBox vBox = new VBox();
@@ -224,7 +226,9 @@ public class BoardGame extends javafx.application.Application {
         Scene scene = new Scene(vBox);
         this.stage.hide();
         this.stage.setScene(scene);
-        this.stage.setFullScreen(true);
+        this.stage.setMinWidth(stageWidth);
+        this.stage.setMinHeight(stageHeight);
+//        this.stage.setFullScreen(true);
         this.stage.show();
 
         refreshBoard();
@@ -235,8 +239,6 @@ public class BoardGame extends javafx.application.Application {
         this.gameInfo = new Label();
         this.lastTurn = new Label();
 
-//        gp.setMinWidth(1100);
-//        gp.setMinHeight(800);
         gp.setPadding(new Insets(16));
         gp.setAlignment(Pos.CENTER);
 
@@ -258,8 +260,8 @@ public class BoardGame extends javafx.application.Application {
         vBox.setAlignment(Pos.CENTER);
         vBox.setPadding(new Insets(16));
         vBox.setSpacing(16);
-        vBox.setMinWidth(520);
-        vBox.setMinHeight(600);
+        vBox.setMinWidth(stageWidth);
+        vBox.setMinHeight(stageHeight);
 
         Scene scene = new Scene(vBox);
         this.stage.setScene(scene);
@@ -310,6 +312,14 @@ public class BoardGame extends javafx.application.Application {
             }
         }
 
+        buttonBox.getChildren().clear();
+        buttonBox.getChildren().add(gameInfo);
+        buttonBox.getChildren().add(rollDice);
+        if (GameLogic.closeEnoughToPayPaywall(players.get(this.currPlayer), this.tiles)) {
+            buttonBox.getChildren().add(payPaywall);
+        }
+        buttonBox.getChildren().add(endTurn);
+
         gameInfo.setText(getGameInfoString());
     }
 
@@ -337,7 +347,7 @@ public class BoardGame extends javafx.application.Application {
     }
 
     private void paywall(ActionEvent e) {
-        lastTurn.setText(GameLogic.payPaywall(this.players.get(this.currPlayer)));
+        lastTurn.setText(GameLogic.payPaywall(this.players.get(this.currPlayer), this.tiles));
         refreshBoard();
     }
 

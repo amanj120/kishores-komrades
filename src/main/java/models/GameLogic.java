@@ -132,22 +132,6 @@ public class GameLogic {
         return others.get(0);
     }
 
-//    public static int findLoser(List<Player> players) {
-//        int lowestRow = Integer.MAX_VALUE;
-//        int lowestCol = Integer.MAX_VALUE;
-//        int idx = -1;
-//
-//        for (int i = 0 ; i < players.size(); i++) {
-//            Player p = players.get(i);
-//            if (p.getCurrentRow() <= lowestRow) {
-//                if (p.getCurrentRow() < lowestRow || p.getCurrentCol() < lowestCol) {
-//                    idx = i;
-//                }
-//            }
-//        }
-//        return idx;
-//    }
-
     public static boolean passedPaywall(int newRow, int newCol,Tile[][] tiles) {
         int nrows = tiles.length;
         int ncols = tiles[0].length;

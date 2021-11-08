@@ -265,8 +265,26 @@ public class BoardGame extends javafx.application.Application {
 
         Scene scene = new Scene(vBox);
         this.stage.setScene(scene);
-//        this.stage.setFullScreen(true);
         this.stage.show();
+    }
+
+    private void selectMiniGame (ActionEvent ae) {
+        int gameSelected = game_rng.nextInt(2) + 1;
+
+        switch (gameSelected) {
+            case 1:
+                // This will be Rock Paper Scissors
+            case 2:
+                // This will be The Fastest Click!
+        }
+    }
+
+    private void showRPS (ActionEvent ae) {
+
+    }
+
+    private void showFastClick (ActionEvent ae) {
+
     }
 
     private void refreshBoard() {
@@ -355,12 +373,6 @@ public class BoardGame extends javafx.application.Application {
         int roll = game_rng.nextInt(6) + 1;
 
         String move_message = GameLogic.movePlayer(players, this.currPlayer, roll, tiles);
-
-//        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-//        Label label = new Label(move_message);
-//        label.setWrapText(true);
-//        alert.getDialogPane().setContent(label);
-//        alert.show();
 
         lastTurn.setText(move_message);
 

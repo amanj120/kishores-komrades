@@ -11,6 +11,7 @@ public class GameLogic {
     private static final int paywallCost = 125;
     // Caching the values of RPS for slightly quicker calls
     private static final RPS[] RPS_VALUES = RPS.values();
+    private static Random gameRandom = new Random();
 
     public enum Attribute {
         NONE, GAIN_MONEY, LOSE_MONEY, MOVE_FORWARD, MOVE_BACK, SWAP_RANDOM, PAYWALL
@@ -135,16 +136,34 @@ public class GameLogic {
         return others.get(0);
     }
 
+    /**
+     * Each player rolls a dice. Highest roll (or score) is the winner.
+     *
+     * Call this method until "getMiniGameWinner" returns a single winner
+     *
+     * @return the number of the simulated dice
+     */
+    public static int playerRollDice (Player currentPlayer) {
+        int diceRoll = gameRandom.nextInt(6) + 1;
+        currentPlayer.setScore(diceRoll);
+        return diceRoll;
+    }
+
     // Generates a computer response for RPS
     private static RPS generateRPS(Random random) {
         int choice = random.nextInt(3);  // There are only three choices in Rock, Paper, Scissors
         return RPS_VALUES[choice];
     }
-
-    // Returns a boolean for whether the game was lost or not
+    
+    /**
+     * Players play Rock Paper Scissors until lost
+     *
+     * This calculates whether the player won against a random computer move
+     * @param playerChoice is either Rock, Paper, or Scissors. Chosen from the JavaFX buttons. Outlined in RPS.java
+     * @return boolean true is Game is lost, false if Game is still going
+     */
     public static boolean playRPS(Player currentPlayer, RPS playerChoice) {
-        Random rpsRandom = new Random();
-        RPS computerChoice = GameLogic.generateRPS(rpsRandom);
+        RPS computerChoice = GameLogic.generateRPS(gameRandom);
 
         // RPS Logic: Return true if computer wins
         return (computerChoice.equals(RPS.ROCK) && playerChoice.equals(RPS.SCISSORS))

@@ -7,6 +7,7 @@ public class Player {
     private int currentRow;
     private int currentCol;
     private boolean isDone;
+    private int score;
 
     public Player(String name, int money, int currentRow, int currentCol) {
         this.name = name;
@@ -54,5 +55,13 @@ public class Player {
 
     public boolean isDone() {
         return this.isDone;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public int getScore() {
+        return this.score;
     }
 }

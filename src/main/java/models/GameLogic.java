@@ -1,5 +1,6 @@
 package models;
 
+import java.sql.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -8,6 +9,8 @@ public class GameLogic {
     public static int numChanceTypes = 5; // Not including None
     private static boolean paywallExists = true;
     private static final int paywallCost = 125;
+    // Caching the values of RPS for slightly quicker calls
+    private static final RPS[] RPS_VALUES = RPS.values();
 
     public enum Attribute {
         NONE, GAIN_MONEY, LOSE_MONEY, MOVE_FORWARD, MOVE_BACK, SWAP_RANDOM, PAYWALL
@@ -130,6 +133,59 @@ public class GameLogic {
         }
         Collections.shuffle(others); // lmao so inefficient but who cares
         return others.get(0);
+    }
+
+    // Generates a computer response for RPS
+    private static RPS generateRPS(Random random) {
+        int choice = random.nextInt(3);  // There are only three choices in Rock, Paper, Scissors
+        return RPS_VALUES[choice];
+    }
+
+    // Returns a boolean for whether the game was lost or not
+    public static boolean playRPS(Player currentPlayer, RPS playerChoice) {
+        Random rpsRandom = new Random();
+        RPS computerChoice = GameLogic.generateRPS(rpsRandom);
+
+        // RPS Logic: Return true if computer wins
+        return (computerChoice.equals(RPS.ROCK) && playerChoice.equals(RPS.SCISSORS))
+                || (computerChoice.equals(RPS.SCISSORS) && playerChoice.equals(RPS.PAPER))
+                || (computerChoice.equals(RPS.PAPER) && playerChoice.equals(RPS.ROCK));
+    }
+
+    // Increments player's points for mini-games, returns value to update for counters
+    public static int incrementPlayerScore(Player player) {
+        int newScore = player.getScore() + 1;
+        player.setScore(newScore);
+        return newScore;
+    }
+
+    // Returns Player(s) with the most points
+    public static ArrayList<Player> getMiniGameWinner(ArrayList<Player> players) {
+        ArrayList<Player> winners = new ArrayList<Player>();
+        int maxScore = 0;
+
+        for (Player player : players) {
+            int playerScore = player.getScore();
+
+            if (playerScore >= maxScore) {
+                if (playerScore > maxScore) {
+                    winners.clear(); // New max score, remove all winners and ties
+                    maxScore = playerScore;
+                }
+
+                // Either tie or winner with higher score, add to winners list
+                winners.add(player);
+            }
+        }
+
+        return winners;
+    }
+
+    // Clears current scores after mini-game is over
+    public static void clearScores(ArrayList<Player> players) {
+        for (Player player : players) {
+            player.setScore(0);
+        }
     }
 
     public static boolean passedPaywall(int newRow, int newCol,Tile[][] tiles) {

@@ -268,23 +268,31 @@ public class BoardGame extends javafx.application.Application {
         this.stage.show();
     }
 
-    private void selectMiniGame (ActionEvent ae) {
-        int gameSelected = game_rng.nextInt(2) + 1;
-
-        switch (gameSelected) {
-            case 1:
-                // This will be Rock Paper Scissors
-            case 2:
-                // This will be The Fastest Click!
-        }
-    }
+//    private void selectMiniGame (ActionEvent ae) {
+//        int gameSelected = game_rng.nextInt(2) + 1;
+//
+//        switch (gameSelected) {
+//            case 1:
+//                // This will be Rock Paper Scissors
+//            case 2:
+//                // This will be The Fastest Click!
+//        }
+//    }
 
     private void showRPS (ActionEvent ae) {
+        Label game_name = new Label("Rock, Paper, Scissors!");
+        game_name.setWrapText(true);
 
-    }
+        // Horizontal Box for Rock Paper Scissors
+        HBox rpsButtons = new HBox();
+        rpsButtons.setAlignment(Pos.CENTER);
+        rpsButtons.setSpacing(16);
 
-    private void showFastClick (ActionEvent ae) {
+        Button rock = new Button("Rock");
+        Button paper = new Button ("Paper");
+        Button scissors = new Button("Scissors");
 
+        rpsButtons.getChildren().addAll(rock, paper, scissors);
     }
 
     private void refreshBoard() {

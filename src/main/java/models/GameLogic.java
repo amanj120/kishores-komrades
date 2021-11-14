@@ -9,12 +9,10 @@ public class GameLogic {
     public static int numChanceTypes = 5; // Not including None
     private static boolean paywallExists = true;
     private static final int paywallCost = 125;
-    // Caching the values of RPS for slightly quicker calls
-    private static final RPS[] RPS_VALUES = RPS.values();
     private static Random gameRandom = new Random();
 
     public enum Attribute {
-        NONE, GAIN_MONEY, LOSE_MONEY, MOVE_FORWARD, MOVE_BACK, SWAP_RANDOM, PAYWALL
+        NONE, GAIN_MONEY, LOSE_MONEY, MOVE_FORWARD, MOVE_BACK, SWAP_RANDOM, PAYWALL, DICE_ROLL, RPS
     }
 
     private static class Pair {
@@ -107,6 +105,10 @@ public class GameLogic {
         tile_arr[numRows - 1][numCols - 1] = new Tile(numRows - 1, numCols - 1, 0, Attribute.NONE, false);
         tile_arr[0][0] = new Tile(numRows - 1, numCols - 1, 0, Attribute.NONE, false);
         tile_arr[numRows / 2][numCols / 2] = new Tile(numRows / 2, numCols / 2, 0, Attribute.PAYWALL, false);
+        //set dice roll game
+        tile_arr[1][2] = new Tile(1, 2, 0, Attribute.DICE_ROLL, false);
+        //set RPS game
+        tile_arr[3][8] = new Tile(3, 8, 0, Attribute.RPS, false);
         return tile_arr;
     }
 
@@ -147,64 +149,6 @@ public class GameLogic {
         int diceRoll = gameRandom.nextInt(6) + 1;
         currentPlayer.setScore(diceRoll);
         return diceRoll;
-    }
-
-    // Generates a computer response for RPS
-    private static RPS generateRPS(Random random) {
-        int choice = random.nextInt(3);  // There are only three choices in Rock, Paper, Scissors
-        return RPS_VALUES[choice];
-    }
-    
-    /**
-     * Players play Rock Paper Scissors until lost
-     *
-     * This calculates whether the player won against a random computer move
-     * @param playerChoice is either Rock, Paper, or Scissors. Chosen from the JavaFX buttons. Outlined in RPS.java
-     * @return boolean true is Game is lost, false if Game is still going
-     */
-    public static boolean playRPS(Player currentPlayer, RPS playerChoice) {
-        RPS computerChoice = GameLogic.generateRPS(gameRandom);
-
-        // RPS Logic: Return true if computer wins
-        return (computerChoice.equals(RPS.ROCK) && playerChoice.equals(RPS.SCISSORS))
-                || (computerChoice.equals(RPS.SCISSORS) && playerChoice.equals(RPS.PAPER))
-                || (computerChoice.equals(RPS.PAPER) && playerChoice.equals(RPS.ROCK));
-    }
-
-    // Increments player's points for mini-games, returns value to update for counters
-    public static int incrementPlayerScore(Player player) {
-        int newScore = player.getScore() + 1;
-        player.setScore(newScore);
-        return newScore;
-    }
-
-    // Returns Player(s) with the most points
-    public static ArrayList<Player> getMiniGameWinner(ArrayList<Player> players) {
-        ArrayList<Player> winners = new ArrayList<Player>();
-        int maxScore = 0;
-
-        for (Player player : players) {
-            int playerScore = player.getScore();
-
-            if (playerScore >= maxScore) {
-                if (playerScore > maxScore) {
-                    winners.clear(); // New max score, remove all winners and ties
-                    maxScore = playerScore;
-                }
-
-                // Either tie or winner with higher score, add to winners list
-                winners.add(player);
-            }
-        }
-
-        return winners;
-    }
-
-    // Clears current scores after mini-game is over
-    public static void clearScores(ArrayList<Player> players) {
-        for (Player player : players) {
-            player.setScore(0);
-        }
     }
 
     public static boolean passedPaywall(int newRow, int newCol,Tile[][] tiles) {
@@ -275,6 +219,9 @@ public class GameLogic {
         player.setCurrentCol(temp_col);
 
         switch(tiles[temp_row][temp_col].attribute) {
+            case DICE_ROLL:
+            case RPS:
+                return "";
             case MOVE_FORWARD:
             case MOVE_BACK:
                 int newroll = tiles[temp_row][temp_col].move;

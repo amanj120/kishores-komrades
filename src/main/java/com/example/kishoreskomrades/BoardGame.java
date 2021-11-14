@@ -13,10 +13,12 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import models.GameLogic;
 import models.Player;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
@@ -43,6 +45,7 @@ public class BoardGame extends javafx.application.Application {
     static final int MAX_MONEY = 25;
     static final int stageWidth = 1250;
     static final int stageHeight = 800;
+    static final int MINIGAME_WINNINGS = 60;
     boolean isTextRed;
     int currPlayer = 0;
 
@@ -268,33 +271,6 @@ public class BoardGame extends javafx.application.Application {
         this.stage.show();
     }
 
-//    private void selectMiniGame (ActionEvent ae) {
-//        int gameSelected = game_rng.nextInt(2) + 1;
-//
-//        switch (gameSelected) {
-//            case 1:
-//                // This will be Rock Paper Scissors
-//            case 2:
-//                // This will be The Fastest Click!
-//        }
-//    }
-
-    private void showRPS (ActionEvent ae) {
-        Label game_name = new Label("Rock, Paper, Scissors!");
-        game_name.setWrapText(true);
-
-        // Horizontal Box for Rock Paper Scissors
-        HBox rpsButtons = new HBox();
-        rpsButtons.setAlignment(Pos.CENTER);
-        rpsButtons.setSpacing(16);
-
-        Button rock = new Button("Rock");
-        Button paper = new Button ("Paper");
-        Button scissors = new Button("Scissors");
-
-        rpsButtons.getChildren().addAll(rock, paper, scissors);
-    }
-
     private void refreshBoard() {
         gp.getChildren().clear();
 
@@ -308,7 +284,7 @@ public class BoardGame extends javafx.application.Application {
                 Text t;
                 if (col == COLS - 1 && row == ROWS - 1) {
                     t = new Text("Finish\n" + player_string);
-                } else{
+                } else {
                     t = new Text(player_string);
                     if (isTextRed) {
                         t.setFill(Color.RED);
@@ -325,6 +301,8 @@ public class BoardGame extends javafx.application.Application {
                     } else {
                         rect.setFill(Color.LIGHTGREEN);
                     }
+                } else if (tiles[row][col].attribute == GameLogic.Attribute.DICE_ROLL || tiles[row][col].attribute == GameLogic.Attribute.RPS)  {
+                    rect.setFill(Color.INDIGO);
                 } else if (tiles[row][col].attribute != GameLogic.Attribute.NONE) {
                     rect.setFill(Color.LIGHTSKYBLUE);
                 } else if (tiles[row][col].isRedTile) {
@@ -377,10 +355,179 @@ public class BoardGame extends javafx.application.Application {
         refreshBoard();
     }
 
+    private void playDiceRoll() {
+        VBox vBox = new VBox();
+        vBox.setAlignment(Pos.CENTER);
+        vBox.setSpacing(100);
+
+        Text text = new Text("Welcome to Dice Roll. Each player roll the dice. The player with the highest roll will win $" + MINIGAME_WINNINGS +
+                ". In the event of a tie, the money will be split among the winning players.\n\n");
+        text.setTextAlignment(TextAlignment.CENTER);
+        vBox.getChildren().add(text);
+        HBox playerRow = new HBox();
+        playerRow.setAlignment(Pos.CENTER);
+        playerRow.setSpacing(50);
+        vBox.getChildren().add(playerRow);
+        int[] rolls = new int[this.players.size()];
+        for (int i = 0; i < this.players.size(); i++) {
+            VBox playerColumn = new VBox();
+            Text playerName = new Text("Player: " + this.players.get(i).getName());
+            Label playerRoll = new Label();
+            Button rollBtn = new Button("Roll Dice");
+            int currPlayerIndex = i;
+            rollBtn.setOnAction(e -> {
+                int roll = game_rng.nextInt(6) + 1;
+                playerRoll.setText("Roll: " + roll);
+                rolls[currPlayerIndex] = roll;
+                playerColumn.getChildren().remove(rollBtn);
+            });
+            playerColumn.getChildren().addAll(playerName, playerRoll, rollBtn);
+            playerRow.getChildren().add(playerColumn);
+        }
+        Button findWinnersBtn = new Button("find winner(s)");
+        vBox.getChildren().add(findWinnersBtn);
+        Label winnersLabel = new Label();
+        findWinnersBtn.setOnAction(e -> {
+            int maxRoll = 0;
+            ArrayList<Player> playersRolled = new ArrayList<Player>();
+            for (int i = 0; i < this.players.size(); i++) {
+                if (rolls[i] > maxRoll) {
+                    maxRoll = rolls[i];
+                    playersRolled.clear();
+                    playersRolled.add(this.players.get(i));
+                } else if (rolls[i] == maxRoll) {
+                    playersRolled.add(this.players.get(i));
+                }
+            }
+            int moneyToAdd = MINIGAME_WINNINGS/playersRolled.size();
+            StringBuilder playersWon = new StringBuilder();
+            for (int i = 0; i < playersRolled.size(); i++) {
+                Player currPlayer = playersRolled.get(i);
+                playersWon.append(currPlayer.getName());
+                if (i != playersRolled.size() - 1)  {
+                    playersWon.append(", ");
+                }
+                currPlayer.setMoney(currPlayer.getMoney() + moneyToAdd);
+            }
+            vBox.getChildren().remove(findWinnersBtn);
+            winnersLabel.setText(playersWon.toString() + " won " + moneyToAdd + "!");
+        });
+        vBox.getChildren().add(winnersLabel);
+        Button returnBtn = new Button("return");
+        vBox.getChildren().add(returnBtn);
+        Scene s = new Scene(vBox);
+        Stage tempStage = new Stage();
+        tempStage.setMinWidth(stageWidth);
+        tempStage.setMinHeight(stageHeight);
+        tempStage.setScene(s);
+        tempStage.setTitle("Dice Roll!");
+        returnBtn.setOnAction(e -> {
+            refreshBoard();
+            tempStage.close();
+        });
+        tempStage.show();
+    }
+
+    private void playRPS() {
+        VBox vBox = new VBox();
+        vBox.setAlignment(Pos.CENTER);
+        vBox.setSpacing(100);
+
+        Text text = new Text("Welcome to Rock Paper Scissors. Each player select their choice. The computer will then present its selection. The player(s) who beat the computer " +
+                "will win $" + MINIGAME_WINNINGS + ".\n In the event of a tie, the money will be split among the winning players. If no player beats the computer no one wins money.\n\n");
+        text.setTextAlignment(TextAlignment.CENTER);
+        Label computerSelection = new Label("Computer selected: ");
+        vBox.getChildren().addAll(text, computerSelection);
+        HBox playerRow = new HBox();
+        playerRow.setAlignment(Pos.CENTER);
+        playerRow.setSpacing(50);
+        vBox.getChildren().add(playerRow);
+        ToggleGroup[] playerTGS = new ToggleGroup[this.players.size()];
+        for (int i = 0; i < this.players.size(); i++) {
+            VBox playerColumn = new VBox();
+            Text playerName = new Text("Player: " + this.players.get(i).getName());
+            ToggleGroup rpsPlayerTG = new ToggleGroup();
+            RadioButton rockRB = new RadioButton("Rock");
+            rockRB.setToggleGroup(rpsPlayerTG);
+            rockRB.setSelected(true);
+            RadioButton paperRB = new RadioButton("Paper");
+            paperRB.setToggleGroup(rpsPlayerTG);
+            RadioButton scissorsRB = new RadioButton("Scissors");
+            scissorsRB.setToggleGroup(rpsPlayerTG);
+            playerTGS[i] = rpsPlayerTG;
+            rpsPlayerTG.setUserData(rpsPlayerTG.getSelectedToggle().toString());
+            playerColumn.getChildren().addAll(playerName, rockRB, paperRB, scissorsRB);
+            playerRow.getChildren().add(playerColumn);
+        }
+        Button findWinnersBtn = new Button("find winner(s)");
+        vBox.getChildren().add(findWinnersBtn);
+        Label winnersLabel = new Label();
+        findWinnersBtn.setOnAction(e -> {
+            int selection = game_rng.nextInt(3) + 1;
+            ArrayList<Player> playersWon = new ArrayList<>();
+            String winningString;
+            if (selection == 0) {
+                computerSelection.setText("Computer selected: Rock");
+                winningString = "Paper";
+            } else if (selection == 1) {
+                computerSelection.setText("Computer selected: Paper");
+                winningString = "Scissors";
+            } else {
+                computerSelection.setText("Computer selected: Scissors");
+                winningString = "Rock";
+            }
+            for (int i = 0; i < this.players.size(); i++) {
+                String playerSelection = ((RadioButton) playerTGS[i].getSelectedToggle()).getText();
+                System.out.println(winningString);
+                System.out.println(playerSelection);
+                if (playerSelection.equals(winningString)) {
+                    playersWon.add(this.players.get(i));
+                }
+            }
+            if (playersWon.size() == 0) {
+                winnersLabel.setText("No player won");
+            } else {
+                int moneyToAdd = MINIGAME_WINNINGS/playersWon.size();
+                StringBuilder playersWonString = new StringBuilder();
+                for (int i = 0; i < playersWon.size(); i++) {
+                    Player currPlayer = playersWon.get(i);
+                    playersWonString.append(currPlayer.getName());
+                    if (i != playersWon.size() - 1)  {
+                        playersWonString.append(", ");
+                    }
+                    currPlayer.setMoney(currPlayer.getMoney() + moneyToAdd);
+                }
+                winnersLabel.setText(playersWonString.toString() + " won " + moneyToAdd + "!");
+            }
+            vBox.getChildren().remove(findWinnersBtn);
+        });
+        vBox.getChildren().add(winnersLabel);
+        Button returnBtn = new Button("return");
+        vBox.getChildren().add(returnBtn);
+        Scene s = new Scene(vBox);
+        Stage tempStage = new Stage();
+        tempStage.setMinWidth(stageWidth);
+        tempStage.setMinHeight(stageHeight);
+        tempStage.setScene(s);
+        tempStage.setTitle("Rock Paper Scissors!");
+        returnBtn.setOnAction(e -> {
+            refreshBoard();
+            tempStage.close();
+        });
+        tempStage.show();
+    }
+
     private void moveDiceRoll (ActionEvent e) {
         int roll = game_rng.nextInt(6) + 1;
 
         String move_message = GameLogic.movePlayer(players, this.currPlayer, roll, tiles);
+
+        Player player = this.players.get(this.currPlayer);
+        if (tiles[player.getCurrentRow()][player.getCurrentCol()].attribute == GameLogic.Attribute.DICE_ROLL) {
+            playDiceRoll();
+        } else if (tiles[player.getCurrentRow()][player.getCurrentCol()].attribute == GameLogic.Attribute.RPS) {
+            playRPS();
+        }
 
         lastTurn.setText(move_message);
 

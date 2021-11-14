@@ -301,7 +301,7 @@ public class BoardGame extends javafx.application.Application {
                     } else {
                         rect.setFill(Color.LIGHTGREEN);
                     }
-                } else if (tiles[row][col].attribute == GameLogic.Attribute.DICE_ROLL || tiles[row][col].attribute == GameLogic.Attribute.RPS)  {
+                } else if (tiles[row][col].attribute == GameLogic.Attribute.MINIGAME)  {
                     rect.setFill(Color.INDIGO);
                 } else if (tiles[row][col].attribute != GameLogic.Attribute.NONE) {
                     rect.setFill(Color.LIGHTSKYBLUE);
@@ -478,8 +478,6 @@ public class BoardGame extends javafx.application.Application {
             }
             for (int i = 0; i < this.players.size(); i++) {
                 String playerSelection = ((RadioButton) playerTGS[i].getSelectedToggle()).getText();
-                System.out.println(winningString);
-                System.out.println(playerSelection);
                 if (playerSelection.equals(winningString)) {
                     playersWon.add(this.players.get(i));
                 }
@@ -523,10 +521,13 @@ public class BoardGame extends javafx.application.Application {
         String move_message = GameLogic.movePlayer(players, this.currPlayer, roll, tiles);
 
         Player player = this.players.get(this.currPlayer);
-        if (tiles[player.getCurrentRow()][player.getCurrentCol()].attribute == GameLogic.Attribute.DICE_ROLL) {
-            playDiceRoll();
-        } else if (tiles[player.getCurrentRow()][player.getCurrentCol()].attribute == GameLogic.Attribute.RPS) {
-            playRPS();
+        if (tiles[player.getCurrentRow()][player.getCurrentCol()].attribute == GameLogic.Attribute.MINIGAME) {
+            int randomZeroOrOne = game_rng.nextInt(2);
+            if (randomZeroOrOne == 0) {
+                playDiceRoll();
+            } else {
+                playRPS();
+            }
         }
 
         lastTurn.setText(move_message);

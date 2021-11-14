@@ -12,7 +12,7 @@ public class GameLogic {
     private static Random gameRandom = new Random();
 
     public enum Attribute {
-        NONE, GAIN_MONEY, LOSE_MONEY, MOVE_FORWARD, MOVE_BACK, SWAP_RANDOM, PAYWALL, DICE_ROLL, RPS
+        NONE, GAIN_MONEY, LOSE_MONEY, MOVE_FORWARD, MOVE_BACK, SWAP_RANDOM, PAYWALL, MINIGAME
     }
 
     private static class Pair {
@@ -106,9 +106,9 @@ public class GameLogic {
         tile_arr[0][0] = new Tile(numRows - 1, numCols - 1, 0, Attribute.NONE, false);
         tile_arr[numRows / 2][numCols / 2] = new Tile(numRows / 2, numCols / 2, 0, Attribute.PAYWALL, false);
         //set dice roll game
-        tile_arr[1][2] = new Tile(1, 2, 0, Attribute.DICE_ROLL, false);
+        tile_arr[1][2] = new Tile(1, 2, 0, Attribute.MINIGAME, false);
         //set RPS game
-        tile_arr[3][8] = new Tile(3, 8, 0, Attribute.RPS, false);
+        tile_arr[3][8] = new Tile(3, 8, 0, Attribute.MINIGAME, false);
         return tile_arr;
     }
 
@@ -219,8 +219,7 @@ public class GameLogic {
         player.setCurrentCol(temp_col);
 
         switch(tiles[temp_row][temp_col].attribute) {
-            case DICE_ROLL:
-            case RPS:
+            case MINIGAME:
                 return "";
             case MOVE_FORWARD:
             case MOVE_BACK:

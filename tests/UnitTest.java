@@ -318,4 +318,60 @@ public class UnitTest {
         // Player 2 should not have paid the fee
         assertEquals(p2_starting_money, p2.getMoney());
     }
+
+    @Test
+    public void testTwoMiniGameTiles() {
+        GameLogic.Tile[][] tiles = GameLogic.setupTiles(5, 11,100, new Random());
+        int numMiniGameTiles = 0;
+        for (int i = 0; i < tiles.length; i++) {
+            for (int j = 0; j < tiles[0].length; j++) {
+                if (tiles[i][j].attribute == GameLogic.Attribute.MINIGAME) {
+                    numMiniGameTiles++;
+                }
+            }
+        }
+        assert numMiniGameTiles == 2;
+    }
+
+    @Test
+    public void testMiniGameTilesHaveNoMoney() {
+        GameLogic.Tile[][] tiles = GameLogic.setupTiles(5, 11,100, new Random());
+        for (int i = 0; i < tiles.length; i++) {
+            for (int j = 0; j < tiles[0].length; j++) {
+                if (tiles[i][j].attribute == GameLogic.Attribute.MINIGAME) {
+                    assert tiles[i][j].money == 0;
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testFirstMiniGameTileLocation() {
+        GameLogic.Tile[][] tiles = GameLogic.setupTiles(5, 11,100, new Random());
+        assert tiles[1][2].attribute == GameLogic.Attribute.MINIGAME;
+    }
+
+    @Test
+    public void testSecondMiniGameTileLocation() {
+        GameLogic.Tile[][] tiles = GameLogic.setupTiles(5, 11,100, new Random());
+        assert tiles[3][8].attribute == GameLogic.Attribute.MINIGAME;
+    }
+
+    @Test
+    public void testMiniGameTilesHaveNoMove() {
+        GameLogic.Tile[][] tiles = GameLogic.setupTiles(5, 11,100, new Random());
+        for (int i = 0; i < tiles.length; i++) {
+            for (int j = 0; j < tiles[0].length; j++) {
+                if (tiles[i][j].attribute == GameLogic.Attribute.MINIGAME) {
+                    assert tiles[i][j].move == 0;
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testRandomChanceTileMethodDoesntReturnMiniGameTile() {
+        GameLogic.Tile chanceTile = GameLogic.getRandomChanceTile(1,2,25, new Random());
+        assert chanceTile.attribute != GameLogic.Attribute.MINIGAME;
+    }
 }

@@ -408,6 +408,7 @@ public class BoardGame extends javafx.application.Application {
                     playersWon.append(", ");
                 }
                 currPlayer.setMoney(currPlayer.getMoney() + moneyToAdd);
+                currPlayer.minigamesWon += 1;
             }
             vBox.getChildren().remove(findWinnersBtn);
             winnersLabel.setText(playersWon.toString() + " won " + moneyToAdd + "!");
@@ -480,6 +481,7 @@ public class BoardGame extends javafx.application.Application {
                 String playerSelection = ((RadioButton) playerTGS[i].getSelectedToggle()).getText();
                 if (playerSelection.equals(winningString)) {
                     playersWon.add(this.players.get(i));
+                    this.players.get(i).minigamesWon += 1;
                 }
             }
             if (playersWon.size() == 0) {

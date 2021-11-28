@@ -217,6 +217,7 @@ public class GameLogic {
         }
         player.setCurrentRow(temp_row);
         player.setCurrentCol(temp_col);
+        player.tilesMoved += roll;
 
         switch(tiles[temp_row][temp_col].attribute) {
             case MINIGAME:
@@ -276,6 +277,49 @@ public class GameLogic {
         }
     }
 
+    public static String getAwardsString(ArrayList<Player> players) {
+        int mostTiles = 0;
+        String tiles = "Most Tiles Moved Award: ";
+        for (Player p: players) {
+            if (p.tilesMoved > mostTiles) {
+                mostTiles = p.tilesMoved;
+                tiles = "Most Tiles Moved Award: " + p.getName() + " : " + p.tilesMoved + " tiles moved ";
+            } else if (p.tilesMoved == mostTiles) {
+                tiles += p.getName() + " : " + p.tilesMoved + " tiles moved ";
+            } else {
+                continue;
+            }
+        }
+
+        int mostMoney = 0;
+        String money = "Most Money Award: ";
+        for (Player p: players) {
+            if (p.getMoney() > mostMoney) {
+                mostMoney = p.getMoney();
+                money = "Most Money Award: " + p.getName() + " : " + p.getMoney() + " money earned ";
+            } else if (p.tilesMoved == mostTiles) {
+                money += p.getName() + " : " + p.getMoney() + " money earned ";
+            } else {
+                continue;
+            }
+        }
+
+        int mostGames = 0;
+        String games = "Most Mini Games Won Award: ";
+        for (Player p: players) {
+            if (p.minigamesWon > mostGames) {
+                mostGames = p.minigamesWon;
+                games = "Most Mini Games Won Award: " + p.getName() + " : " + p.minigamesWon + " mini games won ";
+            } else if (p.tilesMoved == mostTiles) {
+                games += p.getName() + " : " + p.minigamesWon + " mini games won ";
+            } else {
+                continue;
+            }
+        }
+
+        return "\nAWARDS:\n" + tiles + "\n" + money + "\n" + games + "\n";
+    }
+
     public static String getGameOverString(ArrayList<Player> players) {
         String gameOver = "";
         for (Player p : players) {
@@ -288,6 +332,11 @@ public class GameLogic {
         for (Player p : players) {
             gameOver += String.format("\nplayer %s placed %d", p.getName(), idx++);
         }
+//        gameOver += "\nAWARDS:\n";
+//        for (Player p: players) {
+//            gameOver += String.format("Player: %s\tTiles Moved: %d\tMoney Won: %d\t Mini Games Won: %d\n", p.getName(), p.tilesMoved, p.getMoney(), p.minigamesWon);
+//        }
+        gameOver += getAwardsString(players);
         return gameOver;
     }
 }

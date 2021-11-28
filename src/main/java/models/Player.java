@@ -8,6 +8,8 @@ public class Player {
     private int currentCol;
     private boolean isDone;
     private int score;
+    int tilesMoved;
+    public int minigamesWon;
 
     public Player(String name, int money, int currentRow, int currentCol) {
         this.name = name;

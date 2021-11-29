@@ -3,6 +3,7 @@ import models.Player;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 import static org.junit.Assert.*;
@@ -373,5 +374,53 @@ public class UnitTest {
     public void testRandomChanceTileMethodDoesntReturnMiniGameTile() {
         GameLogic.Tile chanceTile = GameLogic.getRandomChanceTile(1,2,25, new Random());
         assert chanceTile.attribute != GameLogic.Attribute.MINIGAME;
+    }
+
+    @Test
+    public void testMoneyWonAwardWorks() {
+        Player a = new Player("a", 100, 0, 0);
+        Player b = new Player("b", 0, 0, 0);
+        Player c = new Player("c", 0, 0, 0);
+        ArrayList<Player> players = new ArrayList<>();
+        players.add(a);
+        players.add(b);
+        players.add(c);
+
+        String s = GameLogic.getAwardsString(players);
+        assert s.contains("Most Money Award: a : 100 money earned");
+    }
+
+    @Test
+    public void testMiniGamesWonAwardWorks() {
+        Player a = new Player("a", 0, 0, 0);
+        Player b = new Player("b", 0, 0, 0);
+        Player c = new Player("c", 0, 0, 0);
+        a.minigamesWon = 10;
+        b.minigamesWon = 0;
+        c.minigamesWon = 0;
+        ArrayList<Player> players = new ArrayList<>();
+        players.add(a);
+        players.add(b);
+        players.add(c);
+
+        String s = GameLogic.getAwardsString(players);
+        assert s.contains("Most Mini Games Won Award: a : 10 mini games won");
+    }
+
+    @Test
+    public void testTilesMovedAwardWorks() {
+        Player a = new Player("a", 0, 0, 0);
+        Player b = new Player("b", 0, 0, 0);
+        Player c = new Player("c", 0, 0, 0);
+        a.tilesMoved = 10;
+        b.tilesMoved = 0;
+        c.tilesMoved = 0;
+        ArrayList<Player> players = new ArrayList<>();
+        players.add(a);
+        players.add(b);
+        players.add(c);
+
+        String s = GameLogic.getAwardsString(players);
+        assert s.contains("Most Tiles Moved Award: a : 10 tiles moved ");
     }
 }

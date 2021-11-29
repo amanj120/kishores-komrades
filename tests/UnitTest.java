@@ -423,4 +423,37 @@ public class UnitTest {
         String s = GameLogic.getAwardsString(players);
         assert s.contains("Most Tiles Moved Award: a : 10 tiles moved ");
     }
+
+    @Test
+    public void testGameOverStringOnePlayer() {
+        Player a = new Player("a", 0, 0, 0);
+        a.setDone();
+        ArrayList<Player> players = new ArrayList<>();
+        players.add(a);
+
+        String s = GameLogic.getGameOverString(players);
+        assert s.contains("a won the game by reaching the finish line first!");
+    }
+
+    @Test
+    public void testGameOverStringMultiplePlayers() {
+        Player a = new Player("a", 0, 0, 0);
+        Player b = new Player("b", 0, 0, 0);
+        Player c = new Player("c", 0, 0, 0);
+        b.setDone();
+        ArrayList<Player> players = new ArrayList<>();
+        players.add(a);
+        players.add(b);
+        players.add(c);
+
+        String s = GameLogic.getGameOverString(players);
+        assert s.contains("b won the game by reaching the finish line first!");
+    }
+
+    @Test
+    public void testComparePlayers() {
+        Player a = new Player("a", 0, 2, 0);
+        Player b = new Player("b", 0, 0, 0);
+        assert GameLogic.compare(a,b) < 0;
+    }
 }

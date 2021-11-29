@@ -302,7 +302,7 @@ public class BoardGame extends javafx.application.Application {
                         rect.setFill(Color.LIGHTGREEN);
                     }
                 } else if (tiles[row][col].attribute == GameLogic.Attribute.MINIGAME)  {
-                    rect.setFill(Color.INDIGO);
+                    rect.setFill(Color.MEDIUMPURPLE);
                 } else if (tiles[row][col].attribute != GameLogic.Attribute.NONE) {
                     rect.setFill(Color.LIGHTSKYBLUE);
                 } else if (tiles[row][col].isRedTile) {
